@@ -130,6 +130,25 @@ internal class DefaultLoginWizard(
         }
     }
 
+    override fun verCodeLogin(type: String, address: String, verCode: String, deviceName: String?, callback: MatrixCallback<Session>): Cancelable {
+        return coroutineScope.launchToCallback(coroutineDispatchers.main, callback) {
+            verCodeLoginInternal(type, address, verCode, deviceName)
+        }
+    }
+
+    private suspend fun verCodeLoginInternal(type: String, address: String, verCode: String, deviceName: String?) = withContext(coroutineDispatchers.computation) {
+        val input = when (type) {
+            EACHCHAT_MSISDN_CODE -> VerCodeLoginData(EACHCHAT_MSISDN_CODE, null, address, verCode, deviceName)
+            EACHCHAT_EMAIL_CODE -> VerCodeLoginData(EACHCHAT_EMAIL_CODE, address, null, verCode, deviceName)
+            else -> VerCodeLoginData(EACHCHAT_MSISDN_CODE, null, address, verCode, deviceName)
+        }
+        val credentials = executeRequest<Credentials>(null) {
+            apiCall = authAPI.verCodeLogin(input)
+        }
+
+        sessionCreator.createSession(credentials, pendingSessionData.homeServerConnectionConfig)
+    }
+
     private suspend fun resetPasswordMailConfirmedInternal(resetPasswordData: ResetPasswordData) {
         val param = ResetPasswordMailConfirmed.create(
                 pendingSessionData.clientSecret,
