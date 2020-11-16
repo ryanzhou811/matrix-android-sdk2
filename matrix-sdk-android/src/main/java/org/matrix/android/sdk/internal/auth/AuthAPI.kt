@@ -22,6 +22,7 @@ import org.matrix.android.sdk.internal.auth.data.PasswordLoginParams
 import org.matrix.android.sdk.internal.auth.data.RiotConfig
 import org.matrix.android.sdk.internal.auth.data.TokenLoginParams
 import org.matrix.android.sdk.internal.auth.login.ResetPasswordMailConfirmed
+import org.matrix.android.sdk.internal.auth.login.VerCodeLoginData
 import org.matrix.android.sdk.internal.auth.registration.AddThreePidRegistrationParams
 import org.matrix.android.sdk.internal.auth.registration.AddThreePidRegistrationResponse
 import org.matrix.android.sdk.internal.auth.registration.RegistrationParams
@@ -115,4 +116,7 @@ internal interface AuthAPI {
      */
     @POST(NetworkConstants.URI_API_PREFIX_PATH_R0 + "account/password")
     fun resetPasswordMailConfirmed(@Body params: ResetPasswordMailConfirmed): Call<Unit>
+
+    @POST(NetworkConstants.URI_API_PREFIX_PATH_R0 + "login")
+    fun verCodeLogin(@Body input: VerCodeLoginData): Call<Credentials>
 }

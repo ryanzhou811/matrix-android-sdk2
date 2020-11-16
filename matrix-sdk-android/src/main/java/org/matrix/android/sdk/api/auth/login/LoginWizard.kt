@@ -51,4 +51,12 @@ interface LoginWizard {
      * Confirm the new password, once the user has checked his email
      */
     fun resetPasswordMailConfirmed(callback: MatrixCallback<Unit>): Cancelable
+
+    fun verCodeLogin(
+            type: String,
+            address: String,
+            verCode: String,
+            deviceName: String?,
+            callback: MatrixCallback<Session>
+    ): Cancelable
 }
