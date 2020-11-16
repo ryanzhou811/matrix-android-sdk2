@@ -41,6 +41,8 @@ import org.matrix.android.sdk.internal.util.MatrixCoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
+import java.io.IOException
+import java.lang.RuntimeException
 
 internal class DefaultLoginWizard(
         okHttpClient: OkHttpClient,
@@ -138,10 +140,11 @@ internal class DefaultLoginWizard(
 
     private suspend fun verCodeLoginInternal(type: String, address: String, verCode: String, deviceName: String?) = withContext(coroutineDispatchers.computation) {
         val input = when (type) {
-            EACHCHAT_MSISDN_CODE -> VerCodeLoginData(EACHCHAT_MSISDN_CODE, null, address, verCode, deviceName)
-            EACHCHAT_EMAIL_CODE -> VerCodeLoginData(EACHCHAT_EMAIL_CODE, address, null, verCode, deviceName)
-            else -> VerCodeLoginData(EACHCHAT_MSISDN_CODE, null, address, verCode, deviceName)
-        }
+            EACHCHAT_MSISDN_CODE -> VerCodeLoginParams(EACHCHAT_MSISDN_CODE, null, address, verCode, deviceName)
+            EACHCHAT_EMAIL_CODE -> VerCodeLoginParams(EACHCHAT_EMAIL_CODE, address, null, verCode, deviceName)
+            else -> null
+        } ?: throw RuntimeException("Developer error, type must be one of the m.login.verCode.msisdn and m.login.verCode.email")
+
         val credentials = executeRequest<Credentials>(null) {
             apiCall = authAPI.verCodeLogin(input)
         }
